@@ -3,7 +3,7 @@
 @using HYAudioPdfCollection.Client.Services
 @inject MediaService mediaService
 
-<PageTitle>Audio & PDF Collection</PageTitle>
+<PageTitle>Mp3 & PDF Koleksiyonu</PageTitle>
 
 <div class="container-fluid mt-4">
     <!-- Başlık ve Arama -->
@@ -11,7 +11,7 @@
         <div class="col-12">
             <h1 class="text-center mb-4">
                 <i class="fas fa-music me-2"></i>
-                Audio & PDF Collection
+                Harun Yahya Kitaplar ve Sesli Kitaplar
             </h1>
 
             <!-- Arama Kutusu -->
@@ -32,7 +32,7 @@
     <div class="mb-5">
         <h2 class="border-bottom pb-2 mb-3">
             <i class="fas fa-flag me-2"></i>
-            Türkçe Audio
+            Türkçe Sesli Kitaplar
         </h2>
         <div class="row">
             @foreach (var file in turkishAudioFiles)
@@ -64,7 +64,7 @@
     <div class="mb-5">
         <h2 class="border-bottom pb-2 mb-3">
             <i class="fas fa-flag me-2"></i>
-            English Audio
+            English Audiobooks - Harun Yahya
         </h2>
         <div class="row">
             @foreach (var file in englishAudioFiles)
@@ -94,7 +94,7 @@
     <div class="mb-5">
         <h2 class="border-bottom pb-2 mb-3">
             <i class="fas fa-file-pdf me-2"></i>
-            PDF Koleksiyonu
+            Kitaplar
         </h2>
         <div class="row">
             @foreach (var file in pdfFiles)

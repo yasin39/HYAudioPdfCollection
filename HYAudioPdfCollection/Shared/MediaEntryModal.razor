@@ -1,6 +1,7 @@
 ﻿@using HYAudioPdfCollection.Client.Models
 @using System.Text.Json
 @using System.Text.Encodings.Web
+@inject IJSRuntime JSRuntime
 
 <div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -43,7 +44,14 @@
                     </div>
 
                     <div class="col-md-6">
-                        <h5>2. JSON Çıktısını Kopyalayın</h5>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="mb-0">2. JSON Çıktısını Kopyalayın</h5>
+
+                            <button type="button" class="btn @copyButtonClass btn-sm" @onclick="CopyJsonToClipboard">
+                                <i class="fas fa-copy me-2"></i>
+                                @copyButtonText
+                            </button>
+                        </div>
 
                         <textarea class="form-control"
                                   rows="10"
@@ -105,7 +113,7 @@
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase // JSON standardı için (örn: "Title" -> "title")
         };
 
-        // Modeli serileştir (ve C# modelimizdeki [kaynak: 42] DownloadUrl'i yoksay)
+        // Modeli serileştir (ve C# modelimizdeki DownloadUrl'i yoksay)
         // Not: MediaFile [kaynak: 42] modelimizdeki property'ler PascalCase (Title)
         // ancak media.json dosyamızdaki property'ler de PascalCase.
         // Bu yüzden CamelCase'e gerek yok.
@@ -142,5 +150,29 @@
         // Çıktı alanlarını temizle
         generatedJson = "";
         errorMessage = "";
+    }
+
+    private string copyButtonText = "Kopyala";
+    private string copyButtonClass = "btn-outline-info";
+
+    // C# METODU
+    private async Task CopyJsonToClipboard()
+    {
+        if (string.IsNullOrEmpty(generatedJson))
+            return;
+
+        // index.html'deki [kaynak: 30] JS fonksiyonunu çağır:
+        await JSRuntime.InvokeVoidAsync("blazorHelpers.copyToClipboard", generatedJson);
+
+        // Kullanıcıya geri bildirim ver:
+        copyButtonText = "Kopyalandı!";
+        copyButtonClass = "btn-info";
+        StateHasChanged();
+
+        await Task.Delay(2000); // 2 saniye bekle
+
+        copyButtonText = "Kopyala";
+        copyButtonClass = "btn-outline-info";
+        StateHasChanged();
     }
 }

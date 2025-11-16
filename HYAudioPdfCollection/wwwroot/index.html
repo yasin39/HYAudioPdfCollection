@@ -30,6 +30,18 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
+    <script>
+        window.blazorHelpers = {
+            // METİN KOPYALAMA FONKSİYONU
+            copyToClipboard: function (text) {
+                navigator.clipboard.writeText(text).then(function () {
+                    console.log("Metin panoya kopyalandı!");
+                }).catch(function (err) {
+                    console.error("Kopyalama başarısız oldu: ", err);
+                });
+            }
+        };
+    </script>
 </body>
 
 </html>

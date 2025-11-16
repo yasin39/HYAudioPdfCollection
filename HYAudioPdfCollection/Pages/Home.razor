@@ -1,0 +1,190 @@
+﻿@page "/"
+@using HYAudioPdfCollection.Client.Models
+@using HYAudioPdfCollection.Client.Services
+@inject MediaService mediaService
+
+<PageTitle>Audio & PDF Collection</PageTitle>
+
+<div class="container-fluid mt-4">
+    <!-- Başlık ve Arama -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="text-center mb-4">
+                <i class="fas fa-music me-2"></i>
+                Audio & PDF Collection
+            </h1>
+
+            <!-- Arama Kutusu -->
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <input type="text"
+                           class="form-control search-box"
+                           placeholder="Ara..."
+                           @bind="searchText"
+                           @bind:event="oninput"
+                           @onkeyup="OnSearch" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Türkçe Kategori -->
+    <div class="mb-5">
+        <h2 class="border-bottom pb-2 mb-3">
+            <i class="fas fa-flag me-2"></i>
+            Türkçe Audio
+        </h2>
+        <div class="row">
+            @foreach (var file in turkishAudioFiles)
+            {
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title">
+                                <i class="fas fa-music me-2 text-primary"></i>
+                                @file.Title
+                            </h6>
+                            <div class="mt-auto">
+                                <a href="@file.DownloadUrl"
+                                   class="btn btn-primary btn-sm w-100"
+                                   download="@($"{file.Title}.mp3")"
+                                   target="_blank">
+                                    <i class="fas fa-download me-2"></i>
+                                    İndir
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- İngilizce Kategori -->
+    <div class="mb-5">
+        <h2 class="border-bottom pb-2 mb-3">
+            <i class="fas fa-flag me-2"></i>
+            English Audio
+        </h2>
+        <div class="row">
+            @foreach (var file in englishAudioFiles)
+            {
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title">
+                                <i class="fas fa-music me-2 text-primary"></i>
+                                @file.Title
+                            </h6>
+                            <div class="mt-auto">
+                                <a href="@file.DownloadUrl"
+                                   class="btn btn-primary btn-sm w-100"
+                                   download="@($"{file.Title}.mp3")"
+                                   target="_blank">
+                                    <i class="fas fa-download me-2"></i>
+                                    Download
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="mb-5">
+        <h2 class="border-bottom pb-2 mb-3">
+            <i class="fas fa-file-pdf me-2"></i>
+            PDF Koleksiyonu
+        </h2>
+        <div class="row">
+            @foreach (var file in pdfFiles)
+            {
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title">
+                                <i class="fas fa-file-pdf me-2 text-danger"></i>
+                                @file.Title
+                            </h6>
+                            <div class="mt-auto">
+                                <a href="@file.DownloadUrl"
+                                   class="btn btn-danger btn-sm w-100"
+                                   download="@($"{file.Title}.pdf")"
+                                   target="_blank">
+                                    <i class="fas fa-download me-2"></i>
+                                    @if (file.Language == "turkish")
+                                    {
+                                        <span>İndir (PDF)</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Download (PDF)</span>
+                                    }
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string searchText = "";
+    private List<MediaFile> turkishAudioFiles = new();
+    private List<MediaFile> englishAudioFiles = new();
+    private List<MediaFile> pdfFiles = new(); // PDF listesi eklendi
+
+    // Yükleniyor... durumu için ana liste eklendi
+    private List<MediaFile>? allFiles = null;
+
+    // Sayfa yüklenirken veriyi asenkron olarak çek
+    protected override async Task OnInitializedAsync()
+    {
+        // Artık tüm filtreleme işlemlerini bu metot yapıyor
+        await LoadFilteredFiles();
+    }
+
+    // Ana filtreleme metodu
+    private async Task LoadFilteredFiles(string searchTerm = "")
+    {
+        List<MediaFile> searchResults;
+
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            // Arama boşsa, tüm dosyaları tiplerine göre ayır
+            // allFiles listesini de doldur
+            allFiles = new List<MediaFile>();
+
+            var turkishAudio = await mediaService.GetFilesByLanguageAndType("turkish", "audio");
+            var englishAudio = await mediaService.GetFilesByLanguageAndType("english", "audio");
+            var pdfs = await mediaService.GetFilesByLanguageAndType("turkish", "pdf");
+            pdfs.AddRange(await mediaService.GetFilesByLanguageAndType("english", "pdf"));
+
+            turkishAudioFiles = turkishAudio;
+            englishAudioFiles = englishAudio;
+            pdfFiles = pdfs;
+
+            allFiles.AddRange(turkishAudio);
+            allFiles.AddRange(englishAudio);
+            allFiles.AddRange(pdfs);
+        }
+        else
+        {
+            // Arama doluysa, servis üzerinden ara
+            searchResults = await mediaService.SearchFiles(searchTerm);
+
+            // Arama sonuçlarını tiplerine göre ayır
+            turkishAudioFiles = searchResults.Where(f => f.Language == "turkish" && f.Type == "audio").ToList();
+            englishAudioFiles = searchResults.Where(f => f.Language == "english" && f.Type == "audio").ToList();
+            pdfFiles = searchResults.Where(f => f.Type == "pdf").ToList();
+        }
+    }
+
+    // Arama tuşuna basıldığında
+    private async Task OnSearch()
+    {
+        await LoadFilteredFiles(searchText);
+    }
+}

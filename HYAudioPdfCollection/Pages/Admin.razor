@@ -1,0 +1,100 @@
+﻿@page "/admin"
+@using HYAudioPdfCollection.Client.Models
+
+<PageTitle>Admin - JSON Jeneratörü</PageTitle>
+
+<div class="container mt-4">
+    <h1 class="text-center">Medya JSON Jeneratörü</h1>
+
+@if (!isAuthenticated)
+{
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">Giriş Gerekli</div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Şifre:</label>
+                            <input type="password"
+                                   id="password"
+                                   class="form-control"
+                                   @bind="enteredPassword"
+                                   @onkeyup="CheckPasswordOnEnter" />
+                        </div>
+                        <button class="btn btn-primary w-100" @onclick="AttemptLogin">Giriş Yap</button>
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="alert alert-danger mt-3" role="alert">
+                                @errorMessage
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+}
+
+else
+{
+        <div class="row">
+            <div class="col-12">
+                <p class="lead text-center">
+                    Bu araç, `media.json` dosyasına eklemek için güvenli bir şekilde JSON objesi oluşturmanızı sağlar.
+                </p>
+
+                <div class="text-center mb-4">
+                    <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#mediaModal">
+                        <i class="fas fa-plus me-2"></i>
+                        Yeni Medya Girişi Oluştur
+                    </button>
+                </div>
+
+                <div class="alert alert-info" role="alert">
+                    <h4 class="alert-heading">Nasıl Kullanılır?</h4>
+                    <p>
+                        1. "Yeni Medya Girişi Oluştur" butonuna tıklayın ve formu doldurun.
+                        <br />
+                        2. "JSON Oluştur" butonuna bastığınızda, üretilen metni aşağıdan kopyalayın.
+                        <br />
+                        3. Projenizdeki `wwwroot/data/media.json` dosyasını açın.
+                        <br />
+                        4. Kopyaladığınız metni, dizideki (`[ ]` içindeki) son objenin sonuna bir virgül (`,`) koyduktan sonra yapıştırın.
+                    </p>
+                </div>
+            </div>
+        </div>
+}
+</div>
+
+<MediaEntryModal />
+
+@code {
+    private bool isAuthenticated = false;
+    private string enteredPassword = "";
+    private string errorMessage = "";
+
+    // GÜVENLİK NOTU: Bu şifre C# kodunda görünecektir.
+    // Bu sadece "gizleme" amaçlıdır, gerçek güvenlik sağlamaz.
+    private const string AdminPassword = "122582"; // <-- ŞİFRENİZİ BURADA DEĞİŞTİRİN
+
+    private void AttemptLogin()
+    {
+        if (enteredPassword == AdminPassword)
+        {
+            isAuthenticated = true;
+            errorMessage = "";
+        }
+        else
+        {
+            errorMessage = "Hatalı şifre.";
+        }
+    }
+
+    private void CheckPasswordOnEnter(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            AttemptLogin();
+        }
+    }
+}

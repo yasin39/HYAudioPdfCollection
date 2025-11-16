@@ -1,0 +1,146 @@
+﻿@using HYAudioPdfCollection.Client.Models
+@using System.Text.Json
+@using System.Text.Encodings.Web
+
+<div class="modal fade" id="mediaModal" tabindex="-1" aria-labelledby="mediaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mediaModalLabel">Yeni Medya Girişi Oluşturucu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>1. Bilgileri Girin</h5>
+
+                        <div class="mb-3">
+                            <label for="mediaTitle" class="form-label">Başlık (Title):</label>
+                            <input type="text" id="mediaTitle" class="form-control" @bind="mediaFile.Title" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="mediaFileId" class="form-label">Google Drive File ID:</label>
+                            <input type="text" id="mediaFileId" class="form-control" @bind="mediaFile.FileId" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="mediaType" class="form-label">Tip (Type):</label>
+                            <select id="mediaType" class="form-select" @bind="mediaFile.Type">
+                                <option value="audio">Audio (Ses)</option>
+                                <option value="pdf">PDF (Kitap)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="mediaLang" class="form-label">Dil (Language):</label>
+                            <select id="mediaLang" class="form-select" @bind="mediaFile.Language">
+                                <option value="turkish">Turkish (Türkçe)</option>
+                                <option value="english">English (İngilizce)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5>2. JSON Çıktısını Kopyalayın</h5>
+
+                        <textarea class="form-control"
+                                  rows="10"
+                                  readonly
+                                  placeholder="JSON çıktısı burada görünecek...">@generatedJson</textarea>
+
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="alert alert-danger mt-2" role="alert">
+                                @errorMessage
+                            </div>
+                        }
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-warning" @onclick="ClearForm">
+                    <i class="fas fa-eraser me-2"></i>
+                    Temizle
+                </button>
+                <button type="button" class="btn btn-primary" @onclick="GenerateJson">
+                    <i class="fas fa-cogs me-2"></i>
+                    JSON Oluştur
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Formu bağlamak için geçici bir model [kaynak: 42] kullanıyoruz
+    private MediaFile mediaFile = new MediaFile
+    {
+        Type = "audio", // Varsayılan değerler
+        Language = "turkish" // Varsayılan değerler
+    };
+
+    private string generatedJson = "";
+    private string errorMessage = "";
+
+    private void GenerateJson()
+    {
+        errorMessage = "";
+
+        // Basit doğrulama (validation)
+        if (string.IsNullOrWhiteSpace(mediaFile.Title) || string.IsNullOrWhiteSpace(mediaFile.FileId))
+        {
+            errorMessage = "Başlık ve File ID alanları zorunludur.";
+            generatedJson = "";
+            return;
+        }
+
+        // JSON serileştirme ayarları (düzgün, girintili çıktı için)
+        var options = new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase // JSON standardı için (örn: "Title" -> "title")
+        };
+
+        // Modeli serileştir (ve C# modelimizdeki [kaynak: 42] DownloadUrl'i yoksay)
+        // Not: MediaFile [kaynak: 42] modelimizdeki property'ler PascalCase (Title)
+        // ancak media.json dosyamızdaki property'ler de PascalCase.
+        // Bu yüzden CamelCase'e gerek yok.
+        var simpleOptions = new JsonSerializerOptions
+        {
+            WriteIndented = true,// Okunabilir (girintili) çıktı ver
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+
+        // Sadece media.json'da [kaynak: 41] olan 4 ana özelliği içeren geçici bir obje oluşturalım
+        var outputObject = new
+        {
+            mediaFile.Title,
+            mediaFile.FileId,
+            mediaFile.Type,
+            mediaFile.Language
+        };
+
+        generatedJson = JsonSerializer.Serialize(outputObject, simpleOptions);
+
+        // JSON'un sonuna `media.json` dosyası için gerekli olan virgülü ekle
+        generatedJson += ",";
+    }
+
+    private void ClearForm()
+    {
+        // Modeli sıfırla (Title ve FileId [kaynak: 42] varsayılan olarak boşa dönecek)
+        mediaFile = new MediaFile
+        {
+            Type = "audio",
+            Language = "turkish"
+        };
+
+        // Çıktı alanlarını temizle
+        generatedJson = "";
+        errorMessage = "";
+    }
+}

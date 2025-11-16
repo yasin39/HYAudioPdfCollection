@@ -31,7 +31,7 @@ jobs:
       - name: 3. Projeyi Yayınla (Publish)
         run: |
           # Proje yolunuzu ve depo adınızı kontrol edin
-          dotnet publish HYAudioPdfCollection/HYAudioPdfCollection.csproj -c Release -o release /p:BaseHref=/HYAudiopdfcollection/ 
+          dotnet publish HYAudioPdfCollection/HYAudioPdfCollection.csproj -c Release -o release 
           touch release/wwwroot/.nojekyll
 
       - name: 4. GitHub Pages'i Ayarla

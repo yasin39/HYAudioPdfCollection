@@ -5,6 +5,13 @@ VisualStudioVersion = 17.14.36616.10 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HYAudioPdfCollection", "HYAudioPdfCollection\HYAudioPdfCollection.csproj", "{C80985DA-5467-4E8E-A3B4-ECF2033F8ABF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{77539D6F-4C3F-440F-816D-9E0F33B14A37}"
+	ProjectSection(SolutionItems) = preProject
+		HYAudioPdfCollection\.github\workflows\deploy-gh-pages.yml = HYAudioPdfCollection\.github\workflows\deploy-gh-pages.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,6 +25,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{77539D6F-4C3F-440F-816D-9E0F33B14A37} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AB46C7FB-96CC-45B0-99C7-E27948E2FC46}

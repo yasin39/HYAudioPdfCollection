@@ -1,0 +1,47 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master # (veya master)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: 1. Kodu indir (Checkout)
+        uses: actions/checkout@v4
+
+      - name: 2. .NET 8'i Kur
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: 3. Projeyi Yayınla (Publish)
+        run: |
+          # Proje yolunuzu ve depo adınızı kontrol edin
+          dotnet publish HYAudioPdfCollection.Client/HYAudioPdfCollection.Client.csproj -c Release -o release /p:BaseHref=/HYAudiopdfcollection/ 
+          touch release/wwwroot/.nojekyll
+
+      - name: 4. GitHub Pages'i Ayarla
+        uses: actions/configure-pages@v5
+
+      - name: 5. Artefaktı Yükle
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'release/wwwroot'
+
+      - name: 6. GitHub Pages'e Dağıt (Deploy)
+        id: deployment
+        uses: actions/deploy-pages@v4

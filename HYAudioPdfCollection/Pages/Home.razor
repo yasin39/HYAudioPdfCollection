@@ -5,6 +5,7 @@
 
 <PageTitle>Mp3 & PDF Koleksiyonu</PageTitle>
 
+
 <div class="container-fluid mt-4">
     <!-- Başlık ve Arama -->
     <div class="row mb-4">
@@ -144,6 +145,8 @@
     {
         // Artık tüm filtreleme işlemlerini bu metot yapıyor
         await LoadFilteredFiles();
+      
+
     }
 
     // Ana filtreleme metodu
@@ -187,4 +190,6 @@
     {
         await LoadFilteredFiles(searchText);
     }
+
+   
 }
